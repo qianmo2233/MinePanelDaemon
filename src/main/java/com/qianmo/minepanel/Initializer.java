@@ -27,7 +27,6 @@ public class Initializer implements ServletContextListener, ApplicationListener<
     }
 
     public void contextInitialized(ServletContextEvent sce) {
-        //
         sce.getServletContext().setAttribute(SERVER_NAME,ftpServer);
         try {
             ftpServer.Start();
@@ -44,9 +43,10 @@ public class Initializer implements ServletContextListener, ApplicationListener<
     }
 
     public static void Init() throws Exception {
+        //System.out.println(new File("data/cores/spigot-1.16.2.jar").getAbsolutePath());
         File Config = new File("config/");
         File Server = new File("data/servers/");
-        File Core = new File("data/cores");
+        File Core = new File("data/cores/");
         File Template = new File("data/templates");
         File Data = new File("data/");
         File file = new File("config/application.yml");

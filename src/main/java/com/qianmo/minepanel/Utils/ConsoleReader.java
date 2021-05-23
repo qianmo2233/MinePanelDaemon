@@ -21,7 +21,7 @@ public class ConsoleReader implements Runnable{
         ContainerManager.getConsoles().put(id, "");
         InputStreamReader inputStreamReader = null;
         try {
-            inputStreamReader = new InputStreamReader(this.inputStream, ConsoleEncode);
+            inputStreamReader = new InputStreamReader(this.inputStream, this.ConsoleEncode);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

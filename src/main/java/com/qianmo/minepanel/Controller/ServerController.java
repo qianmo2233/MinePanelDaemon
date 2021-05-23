@@ -1,7 +1,9 @@
 package com.qianmo.minepanel.Controller;
 
+import com.qianmo.minepanel.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Entity.Server;
+import com.qianmo.minepanel.MinePanelApplication;
 import com.qianmo.minepanel.Service.ServerManager;
 import com.qianmo.minepanel.Utils.Common;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +77,107 @@ public class ServerController {
             Common.deleteAll("data/servers/" + id + "/");
             map.put("code", "200");
             map.put("msg", "Success");
+        }
+        return map;
+    }
+
+    @GET
+    @Path("start")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> startServer(@QueryParam("id") Integer id, @QueryParam("token") String token, @QueryParam("cmd") String cmd) throws Exception {
+        Map<String, String> map = new HashMap<>();
+        if(!daemonConfiguration.getToken().equals(token)) {
+            map.put("code", "401");
+            map.put("msg", "Access Denied");
+            return map;
+        }
+        if(!new File("data/servers/" + id + "/").exists() || serverManager.getServer(id) == null) {
+            map.put("code", "404");
+            map.put("msg", "Server not Found");
+        } else {
+            cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
+            MinePanelApplication.getLogger().info(cmd);
+            String[] args = new String[0];
+            ContainerManager.create(id, cmd, args);
+            map.put("code", "200");
+            map.put("msg", "Success");
+        }
+        return map;
+    }
+
+    @GET
+    @Path("log")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
+        Map<String, String> map = new HashMap<>();
+        if(!daemonConfiguration.getToken().equals(token)) {
+            map.put("code", "401");
+            map.put("msg", "Access Denied");
+            return map;
+        }
+        File file = new File("data/servers/" + id + "/");
+        if(!file.exists() || serverManager.getServer(id) == null) {
+            map.put("code", "404");
+            map.put("msg", "Server not Found");
+        } else if(ContainerManager.getContainers().containsKey(id)) {
+            map.put("code", "200");
+            map.put("msg", ContainerManager.getConsoles().get(id));
+        } else {
+            map.put("code", "201");
+            map.put("msg", "Server is already stopped");
+        }
+        return map;
+    }
+
+    @GET
+    @Path("stop")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> stopServer(@QueryParam("id") Integer id, @QueryParam("token") String token) {
+        Map<String, String> map = new HashMap<>();
+        if(!daemonConfiguration.getToken().equals(token)) {
+            map.put("code", "401");
+            map.put("msg", "Access Denied");
+            return map;
+        }
+        File file = new File("data/servers/" + id + "/");
+        if(!file.exists() || serverManager.getServer(id) == null) {
+            map.put("code", "404");
+            map.put("msg", "Server not Found");
+        } else if(ContainerManager.getContainers().containsKey(id)) {
+            ContainerManager.destroy(id);
+            map.put("code", "200");
+            map.put("msg", "Success");
+        } else {
+            map.put("code", "201");
+            map.put("msg", "Server is already stopped");
+        }
+        return map;
+    }
+    @GET
+    @Path("exec")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> ExecCmd(@QueryParam("id") Integer id, @QueryParam("token") String token, @QueryParam("cmd") String cmd) {
+        Map<String, String> map = new HashMap<>();
+        if(!daemonConfiguration.getToken().equals(token)) {
+            map.put("code", "401");
+            map.put("msg", "Access Denied");
+            return map;
+        }
+        File file = new File("data/servers/" + id + "/");
+        if(!file.exists() || serverManager.getServer(id) == null) {
+            map.put("code", "404");
+            map.put("msg", "Server not Found");
+        } else if(ContainerManager.getContainers().containsKey(id)) {
+            ContainerManager.execute(id, cmd);
+            map.put("code", "200");
+            map.put("msg", "Success");
+        } else {
+            map.put("code", "201");
+            map.put("msg", "Server is already stopped");
         }
         return map;
     }

@@ -25,4 +25,7 @@ public class Server {
 
     @Column(name = "param")
     private String param = "";
+
+    @Column(name = "file")
+    private String file = "";
 }
