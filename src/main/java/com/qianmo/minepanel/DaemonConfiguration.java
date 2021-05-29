@@ -11,4 +11,6 @@ public class DaemonConfiguration {
     private String token;
 
     private Integer ftp_port;
+
+    private String docker;
 }

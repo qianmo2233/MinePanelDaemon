@@ -1,6 +1,5 @@
-package com.qianmo.minepanel.Utils;
+package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.ContainerManager;
 import com.qianmo.minepanel.MinePanelApplication;
 
 public class StatusListener implements Runnable{
@@ -21,7 +20,7 @@ public class StatusListener implements Runnable{
             } else {
                 MinePanelApplication.getLogger().info("Container " + id + " has stopped");
             }
-            if(ContainerManager.getContainers().containsKey(id)){
+            if(ContainerManager.getContainer().containsKey(id)){
                 ContainerManager.destroy(id);
             }
         } catch (InterruptedException e) {

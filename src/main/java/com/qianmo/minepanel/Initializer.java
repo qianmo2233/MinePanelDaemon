@@ -1,5 +1,6 @@
 package com.qianmo.minepanel;
 
+import com.qianmo.minepanel.Docker.DockerManager;
 import com.qianmo.minepanel.Server.FTP.FTPServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -17,8 +18,15 @@ import java.io.InputStreamReader;
 @Component
 public class Initializer implements ServletContextListener, ApplicationListener<WebServerInitializedEvent> {
     private static final String SERVER_NAME="FTP-SERVER";
+
     @Autowired
     private FTPServer ftpServer;
+
+    @Autowired
+    private DockerManager dockerManager;
+
+    @Autowired
+    private DaemonConfiguration daemonConfiguration;
 
     public void contextDestroyed(ServletContextEvent sce) {
         ftpServer.Stop();
@@ -34,6 +42,13 @@ public class Initializer implements ServletContextListener, ApplicationListener<
         } catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("FTP server start failed!", e);
+        }
+        if(!daemonConfiguration.getDocker().equals("")) {
+            try {
+                dockerManager.Init();
+            } catch (Exception e) {
+                MinePanelApplication.getLogger().warn("Failed to connect docker:" + e);
+            }
         }
     }
 
@@ -59,9 +74,9 @@ public class Initializer implements ServletContextListener, ApplicationListener<
             Config.mkdirs();
         }
         if(!file.exists()) {
-            System.out.println("MinePanelDaemon需要配置文件(application.yml)才能运行!");
-            System.out.println("请前往MinePanel控制面板生成配置文件");
-            System.out.println("按回车继续");
+            System.out.println("MinePanelDaemon requires a configuration file(application.yml)to run!");
+            System.out.println("Please go to MinePanel to generate a configuration file");
+            System.out.println("Press enter to continue");
             new BufferedReader(new InputStreamReader(System.in)).readLine();
             System.exit(2);
         }

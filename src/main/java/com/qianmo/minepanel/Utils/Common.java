@@ -18,4 +18,17 @@ public class Common {
             filePar.delete();
         }
     }
+
+    public static String stringFilter(String string) {
+        if (string != null && string.length() > 0) {
+            char[] contentCharArr = string.toCharArray();
+            for (int i = 0; i < contentCharArr.length; i++) {
+                if (contentCharArr[i] < 0x20 || contentCharArr[i] == 0x7F) {
+                    contentCharArr[i] = 0x20;
+                }
+            }
+            return new String(contentCharArr);
+        }
+        return "";
+    }
 }

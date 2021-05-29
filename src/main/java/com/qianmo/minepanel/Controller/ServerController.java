@@ -1,6 +1,6 @@
 package com.qianmo.minepanel.Controller;
 
-import com.qianmo.minepanel.ContainerManager;
+import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Entity.Server;
 import com.qianmo.minepanel.MinePanelApplication;
@@ -95,13 +95,16 @@ public class ServerController {
         if(!new File("data/servers/" + id + "/").exists() || serverManager.getServer(id) == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else {
+        } else if(!ContainerManager.getContainer().containsKey(id)) {
             cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
             MinePanelApplication.getLogger().info(cmd);
             String[] args = new String[0];
             ContainerManager.create(id, cmd, args);
             map.put("code", "200");
             map.put("msg", "Success");
+        } else {
+            map.put("code", "201");
+            map.put("msg", "Server is already started");
         }
         return map;
     }
@@ -110,8 +113,8 @@ public class ServerController {
     @Path("log")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
-        Map<String, String> map = new HashMap<>();
+    public Map getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
+        Map map = new HashMap<>();
         if(!daemonConfiguration.getToken().equals(token)) {
             map.put("code", "401");
             map.put("msg", "Access Denied");
@@ -121,9 +124,9 @@ public class ServerController {
         if(!file.exists() || serverManager.getServer(id) == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(ContainerManager.getContainers().containsKey(id)) {
+        } else if(ContainerManager.getContainer().containsKey(id)) {
             map.put("code", "200");
-            map.put("msg", ContainerManager.getConsoles().get(id));
+            map.put("msg", ContainerManager.getContainer().get(id).getConsoles());
         } else {
             map.put("code", "201");
             map.put("msg", "Server is already stopped");
@@ -146,7 +149,7 @@ public class ServerController {
         if(!file.exists() || serverManager.getServer(id) == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(ContainerManager.getContainers().containsKey(id)) {
+        } else if(ContainerManager.getContainer().containsKey(id)) {
             ContainerManager.destroy(id);
             map.put("code", "200");
             map.put("msg", "Success");
@@ -171,7 +174,7 @@ public class ServerController {
         if(!file.exists() || serverManager.getServer(id) == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(ContainerManager.getContainers().containsKey(id)) {
+        } else if(ContainerManager.getContainer().containsKey(id)) {
             ContainerManager.execute(id, cmd);
             map.put("code", "200");
             map.put("msg", "Success");
