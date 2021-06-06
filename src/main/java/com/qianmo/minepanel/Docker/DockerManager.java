@@ -16,6 +16,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
+import static com.github.dockerjava.api.model.HostConfig.newHostConfig;
+
 //todo Docker
 @Component
 public class DockerManager {
@@ -69,11 +71,14 @@ public class DockerManager {
     }
 
     public void create(String image, String name, Long memory, Integer cpu, Integer port) {
+        Ports portBindings = new Ports();
+        portBindings.bind(ExposedPort.tcp(port), Ports.Binding.bindPort(port));
         CreateContainerResponse container = dockerClient.createContainerCmd(image)
                 .withName(name)
                 .withMemory(memory*1024*1024)
                 .withCpuShares(cpu)
                 .withExposedPorts(ExposedPort.tcp(port))
+                .withHostConfig(newHostConfig().withPortBindings(portBindings))
                 .exec();
     }
 }

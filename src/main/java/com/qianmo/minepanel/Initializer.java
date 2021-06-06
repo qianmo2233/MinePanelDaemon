@@ -65,6 +65,7 @@ public class Initializer implements ServletContextListener, ApplicationListener<
         File Template = new File("data/templates");
         File Data = new File("data/");
         File file = new File("config/application.yml");
+        File data = new File("config/data.db");
         if(!Data.exists()) {
             Server.mkdirs();
             Core.mkdirs();
@@ -79,6 +80,9 @@ public class Initializer implements ServletContextListener, ApplicationListener<
             System.out.println("Press enter to continue");
             new BufferedReader(new InputStreamReader(System.in)).readLine();
             System.exit(2);
+        }
+        if (!data.exists()) {
+            data.createNewFile();
         }
     }
 }
