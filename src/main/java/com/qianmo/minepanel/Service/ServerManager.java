@@ -1,7 +1,7 @@
 package com.qianmo.minepanel.Service;
 
 import com.qianmo.minepanel.Entity.Server;
-import com.qianmo.minepanel.Repository.ServerRepository;
+import com.qianmo.minepanel.Mapper.ServerMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -10,25 +10,25 @@ import java.util.List;
 @Service
 public class ServerManager {
     @Resource
-    private ServerRepository serverRepository;
+    private ServerMapper serverMapper;
 
-    public Server Add(Server server){
-        return serverRepository.save(server);
+    public void Add(Server server){
+        serverMapper.insert(server);
     }
 
     public void Delete(Integer id) {
-        serverRepository.deleteById(id);
+        serverMapper.deleteById(id);
     }
 
-    public Server Update(Server server) {
-        return serverRepository.save(server);
+    public int Update(Server server) {
+        return serverMapper.updateById(server);
     }
 
     public List<Server> getAllServer() {
-        return serverRepository.findAll();
+        return serverMapper.selectList(null);
     }
 
     public Server getServer(Integer id) {
-        return serverRepository.findById(id).orElse(null);
+        return serverMapper.selectById(id);
     }
 }

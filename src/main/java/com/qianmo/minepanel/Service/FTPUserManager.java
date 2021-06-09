@@ -1,7 +1,8 @@
 package com.qianmo.minepanel.Service;
 
 import com.qianmo.minepanel.Entity.FTPUser;
-import com.qianmo.minepanel.Repository.FTPUserRepository;
+import com.qianmo.minepanel.Mapper.FTPUserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -10,25 +11,25 @@ import java.util.List;
 @Service
 public class FTPUserManager {
     @Resource
-    private FTPUserRepository ftpUserRepository;
+    private FTPUserMapper ftpUserMapper;
 
     public void Add(FTPUser ftpUser) {
-        ftpUserRepository.save(ftpUser);
+        ftpUserMapper.insert(ftpUser);
     }
 
     public void Delete(String username) {
-        ftpUserRepository.deleteById(username);
+        ftpUserMapper.deleteById(username);
     }
 
-    public FTPUser Update(FTPUser ftpUser) {
-        return ftpUserRepository.save(ftpUser);
+    public int Update(FTPUser ftpUser) {
+        return ftpUserMapper.updateById(ftpUser);
     }
 
     public List<FTPUser> getAllUser() {
-        return ftpUserRepository.findAll();
+        return ftpUserMapper.selectList(null);
     }
 
     public FTPUser getUser(String username) {
-        return ftpUserRepository.findById(username).orElse(null);
+        return ftpUserMapper.selectById(username);
     }
 }

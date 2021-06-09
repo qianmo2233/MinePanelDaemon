@@ -82,7 +82,7 @@ public class Initializer implements ServletContextListener, ApplicationListener<
             System.exit(2);
         }
         if (!data.exists()) {
-            data.createNewFile();
+            Initializer.class.getResource("data.db");
         }
     }
 }
