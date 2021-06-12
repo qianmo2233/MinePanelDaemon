@@ -2,9 +2,11 @@ package com.qianmo.minepanel;
 
 import com.qianmo.minepanel.Docker.DockerManager;
 import com.qianmo.minepanel.Server.FTP.FTPServer;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
@@ -12,6 +14,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 @WebListener
@@ -58,7 +61,6 @@ public class Initializer implements ServletContextListener, ApplicationListener<
     }
 
     public static void Init() throws Exception {
-        //System.out.println(new File("data/cores/spigot-1.16.2.jar").getAbsolutePath());
         File Config = new File("config/");
         File Server = new File("data/servers/");
         File Core = new File("data/cores/");
@@ -75,14 +77,16 @@ public class Initializer implements ServletContextListener, ApplicationListener<
             Config.mkdirs();
         }
         if(!file.exists()) {
-            System.out.println("MinePanelDaemon requires a configuration file(application.yml)to run!");
-            System.out.println("Please go to MinePanel to generate a configuration file");
-            System.out.println("Press enter to continue");
-            new BufferedReader(new InputStreamReader(System.in)).readLine();
-            System.exit(2);
+            file.createNewFile();
+            InputStream inputStream = new ClassPathResource("application.yml").getInputStream();
+            FileUtils.copyToFile(inputStream, file);
+            inputStream.close();
         }
         if (!data.exists()) {
-            Initializer.class.getResource("data.db");
+            data.createNewFile();
+            InputStream inputStream = new ClassPathResource("data.db").getInputStream();
+            FileUtils.copyToFile(inputStream, data);
+            inputStream.close();
         }
     }
 }

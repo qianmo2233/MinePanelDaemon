@@ -1,6 +1,5 @@
 package com.qianmo.minepanel;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +13,6 @@ import java.io.InputStreamReader;
 
 @SpringBootApplication
 @ServletComponentScan(value = "com.qianmo.minepanel.Initializer")
-@MapperScan("Mapper")
 @EnableConfigurationProperties
 public class MinePanelApplication {
     private static final Logger logger = LoggerFactory.getLogger("Daemon");
@@ -23,14 +21,17 @@ public class MinePanelApplication {
         try {
             Initializer.Init();
         } catch (Exception e) {
-            System.out.println("Daemon启动失败!");
-            System.out.println("按回车继续");
+            System.out.println("--------------------------");
+            System.out.println("Daemon start failed!");
+            System.out.println("--------------------------");
+            e.printStackTrace();
+            System.out.println("Press enter to continue");
             try {
                 new BufferedReader(new InputStreamReader(System.in)).readLine();
+                System.exit(1);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-            System.exit(1);
         }
         SpringApplication.run(MinePanelApplication.class, args);
     }

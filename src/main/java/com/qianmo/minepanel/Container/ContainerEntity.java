@@ -9,14 +9,14 @@ import java.util.List;
 
 @Data
 public class ContainerEntity {
-    private Integer id;
+    private String id;
     private Process process;
     private InputStream inputStream;
     private OutputStream outputStream;
 
     private List consoles = new ArrayList();
 
-    public ContainerEntity(Integer id, Process process, InputStream inputStream, OutputStream outputStream) {
+    public ContainerEntity(String id, Process process, InputStream inputStream, OutputStream outputStream) {
         this.id = id;
         this.process = process;
         this.inputStream = inputStream;

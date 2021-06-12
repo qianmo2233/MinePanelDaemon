@@ -1,6 +1,7 @@
 package com.qianmo.minepanel.Container;
 
 import com.qianmo.minepanel.MinePanelApplication;
+import org.apache.commons.lang.RandomStringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +24,7 @@ public class ContainerManager {
         }
         final InputStream inputStream = process.getInputStream();
         final OutputStream outputStream = process.getOutputStream();
-        ContainerEntity containerEntity = new ContainerEntity(id, process, inputStream, outputStream);
+        ContainerEntity containerEntity = new ContainerEntity(RandomStringUtils.random(10), process, inputStream, outputStream);
         Container.put(id, containerEntity);
         new Thread(new ConsoleReader(containerEntity, "GBK")).start();
         new Thread(new StatusListener(process, id)).start();

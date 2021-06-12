@@ -1,0 +1,15 @@
+#Daemon运行端口
+server:
+  port: 8081
+
+#Daemon设置
+daemon:
+  config:
+    #FTP服务器端口
+    ftp_port: 2121
+    #Daemon访问密钥
+    token: test
+    #Docker连接地址
+    #tpc://localhost:2375
+    #留空停用Docker
+    docker: tcp://localhost:2375
