@@ -2,10 +2,13 @@ package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
+import com.qianmo.minepanel.Docker.DockerManager;
 import com.qianmo.minepanel.Entity.Server;
 import com.qianmo.minepanel.MinePanelApplication;
 import com.qianmo.minepanel.Service.ServerManager;
 import com.qianmo.minepanel.Utils.Common;
+import com.qianmo.minepanel.Utils.Docker;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,28 +32,56 @@ public class ServerController {
     @Autowired
     private DaemonConfiguration daemonConfiguration;
 
+    @Autowired
+    private DockerManager dockerManager;
+
     @GET
     @Path("create")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> createServer(@QueryParam("id") Integer id, @QueryParam("memory") Integer memory, @QueryParam("disk") Integer disk, @QueryParam("token") String token) throws Exception {
+    public Map<String, String> createServer(
+            @QueryParam("id") Integer id,
+            @QueryParam("memory") Integer memory,
+            @QueryParam("disk") Integer disk,
+            @QueryParam("token") String token,
+            @QueryParam("port") Integer port,
+            @QueryParam("image") String image,
+            @QueryParam("file") String file,
+            @QueryParam("param") String param,
+            @QueryParam("cpu") Integer cpu,
+            @QueryParam("autorun") Boolean autorun,
+            @QueryParam("docker") Boolean docker
+    ) throws Exception {
         Map<String, String> map = new HashMap<>();
         if(!daemonConfiguration.getToken().equals(token)) {
             map.put("code", "401");
             map.put("msg", "Access Denied");
             return map;
         }
-        File file = new File("data/servers/" + id + "/");
-        if(file.exists() || serverManager.getServer(id) != null) {
+        File dir = new File("data/servers/" + id + "/");
+        String cid;
+        if(docker) {
+            cid = dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath());
+        } else {
+            cid = RandomStringUtils.random(10);
+        }
+        if(dir.exists() || serverManager.getServer(id) != null) {
             map.put("code", "201");
             map.put("msg", "Server already exists");
         } else {
             Server server = new Server();
-            server.setId(id);
             server.setMemory(memory);
             server.setDisk(disk);
+            server.setContainer(cid);
+            server.setAutorun(autorun);
+            server.setDocker(docker);
+            server.setCpu(cpu);
+            server.setFile(file);
+            server.setImage(image);
+            server.setParam(param);
+            server.setPort(port);
             serverManager.Add(server);
-            file.mkdirs();
+            dir.mkdirs();
             map.put("code", "200");
             map.put("msg", "Success");
         }
@@ -98,8 +129,26 @@ public class ServerController {
         } else if(!ContainerManager.getContainer().containsKey(id)) {
             cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
             MinePanelApplication.getLogger().info(cmd);
-            String[] args = new String[0];
-            ContainerManager.create(id, cmd, args);
+            if(serverManager.getServer(id).getDocker()) {
+                if(Docker.hasContainer(serverManager.getServer(id).getContainer(), dockerManager.getContainers())) {
+                    dockerManager.start(serverManager.getServer(id).getContainer());
+                } else {
+                    dockerManager.create(
+                            serverManager.getServer(id).getImage(),
+                            serverManager.getServer(id).getMemory(),
+                            serverManager.getServer(id).getCpu(),
+                            serverManager.getServer(id).getPort(),
+                            new File("data/servers/" + id + "/").getAbsolutePath()
+                            );
+                    dockerManager.start(serverManager.getServer(id).getContainer());
+                }
+                String[] args = new String[0];
+                ContainerManager.create(id, "docker attach " + serverManager.getServer(id).getContainer(), args);
+                ContainerManager.execute(id, cmd);
+            } else {
+                String[] args = new String[0];
+                ContainerManager.create(id, cmd, args);
+            }
             map.put("code", "200");
             map.put("msg", "Success");
         } else {
@@ -113,8 +162,8 @@ public class ServerController {
     @Path("log")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
-        Map map = new HashMap<>();
+    public Map<Object, Object> getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
+        Map<Object, Object> map = new HashMap<>();
         if(!daemonConfiguration.getToken().equals(token)) {
             map.put("code", "401");
             map.put("msg", "Access Denied");

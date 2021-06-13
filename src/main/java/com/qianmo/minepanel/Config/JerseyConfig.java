@@ -1,6 +1,7 @@
 package com.qianmo.minepanel.Config;
 
 import com.qianmo.minepanel.Controller.DaemonController;
+import com.qianmo.minepanel.Controller.DockerController;
 import com.qianmo.minepanel.Controller.FTPUserController;
 import com.qianmo.minepanel.Controller.ServerController;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -15,5 +16,6 @@ public class JerseyConfig extends ResourceConfig {
         register(DaemonController.class);
         register(FTPUserController.class);
         register(ServerController.class);
+        register(DockerController.class);
     }
 }

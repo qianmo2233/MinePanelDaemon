@@ -1,6 +1,11 @@
 package com.qianmo.minepanel.Utils;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class Common {
     public static void deleteAll(String path) {
@@ -19,16 +24,17 @@ public class Common {
         }
     }
 
-    public static String stringFilter(String string) {
-        if (string != null && string.length() > 0) {
-            char[] contentCharArr = string.toCharArray();
-            for (int i = 0; i < contentCharArr.length; i++) {
-                if (contentCharArr[i] < 0x20 || contentCharArr[i] == 0x7F) {
-                    contentCharArr[i] = 0x20;
-                }
-            }
-            return new String(contentCharArr);
+    public static boolean compareFile(File f1, File f2) {
+        try {
+            InputStream i1 = new FileInputStream(f1);
+            InputStream i2 = new FileInputStream(f2);
+            String s1 = DigestUtils.md5Hex(IOUtils.toByteArray(i1));
+            String s2 = DigestUtils.md5Hex(IOUtils.toByteArray(i2));
+            i1.close();
+            i2.close();
+            return s1.equals(s2);
+        } catch (Exception e) {
+            return false;
         }
-        return "";
     }
 }

@@ -1,7 +1,6 @@
 package com.qianmo.minepanel.Docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -12,8 +11,6 @@ import com.qianmo.minepanel.MinePanelApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.List;
 
 import static com.github.dockerjava.api.model.HostConfig.newHostConfig;
@@ -32,6 +29,7 @@ public class DockerManager {
                 .withDockerHost(daemonConfiguration.getDocker())
                 .build();
         dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
+        dockerClient.pingCmd().exec();
         Info info = dockerClient.infoCmd().exec();
         MinePanelApplication.getLogger().info("Successfully connected to docker!");
         MinePanelApplication.getLogger().info("Docker Version: " + info.getServerVersion());
@@ -41,44 +39,45 @@ public class DockerManager {
         return dockerClient.searchImagesCmd(keyword).exec();
     }
 
-    public void pullImages(String image) {
-        dockerClient.pullImageCmd(image).exec(new ResultCallback<PullResponseItem>() {
-            @Override
-            public void onStart(Closeable closeable) {
-                //
-            }
-
-            @Override
-            public void onNext(PullResponseItem pullResponseItem) {
-                //
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                //
-            }
-
-            @Override
-            public void onComplete() {
-                //
-            }
-
-            @Override
-            public void close() throws IOException {
-                //
-            }
-        });
+    public Info getInfo() {
+        return dockerClient.infoCmd().exec();
     }
 
-    public void create(String image, String name, Long memory, Integer cpu, Integer port) {
+    public List<Container> getContainers() {
+        return dockerClient.listContainersCmd().exec();
+    }
+
+    public String create(String image, Integer memory, Integer cpu, Integer port, String path) {
         Ports portBindings = new Ports();
         portBindings.bind(ExposedPort.tcp(port), Ports.Binding.bindPort(port));
         CreateContainerResponse container = dockerClient.createContainerCmd(image)
-                .withName(name)
-                .withMemory(memory*1024*1024)
+                .withMemory((long) (memory * 1024 * 1024))
                 .withCpuShares(cpu)
                 .withExposedPorts(ExposedPort.tcp(port))
                 .withHostConfig(newHostConfig().withPortBindings(portBindings))
+                .withVolumes(new Volume(path))
+                .withCmd("/bin/bash")
                 .exec();
+        return container.getId();
+    }
+
+    public List<Image> getImages() {
+        return dockerClient.listImagesCmd().exec();
+    }
+
+    public void start(String id) {
+        dockerClient.startContainerCmd(id).exec();
+    }
+
+    public void stop(String id) {
+        dockerClient.stopContainerCmd(id).exec();
+    }
+
+    public void restart(String id) {
+        dockerClient.restartContainerCmd(id).exec();
+    }
+
+    public void remove(String id) {
+        dockerClient.removeContainerCmd(id).exec();
     }
 }

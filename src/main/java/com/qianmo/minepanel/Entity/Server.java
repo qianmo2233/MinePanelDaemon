@@ -26,4 +26,19 @@ public class Server {
 
     @TableField("file")
     private String file = "";
+
+    @TableField("docker")
+    private Boolean docker;
+
+    @TableField("container")
+    private String container;
+
+    @TableField("port")
+    private Integer port;
+
+    @TableField("image")
+    private  String image;
+
+    @TableField("cpu")
+    private Integer cpu;
 }
