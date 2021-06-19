@@ -3,8 +3,8 @@ package com.qianmo.minepanel.Controller;
 import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Docker.DockerManager;
-import com.qianmo.minepanel.Entity.Server;
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.Entity.ServerEntity;
+import com.qianmo.minepanel.MinePanelDaemon;
 import com.qianmo.minepanel.Service.ServerManager;
 import com.qianmo.minepanel.Utils.Common;
 import com.qianmo.minepanel.Utils.Docker;
@@ -40,7 +40,6 @@ public class ServerController {
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> createServer(
-            @QueryParam("id") Integer id,
             @QueryParam("memory") Integer memory,
             @QueryParam("disk") Integer disk,
             @QueryParam("token") String token,
@@ -58,33 +57,27 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
+        ServerEntity serverEntity = new ServerEntity();
+        serverEntity.setMemory(memory);
+        serverEntity.setDisk(disk);
+        serverEntity.setAutorun(autorun);
+        serverEntity.setDocker(docker);
+        serverEntity.setCpu(cpu);
+        serverEntity.setFile(file);
+        serverEntity.setImage(image);
+        serverEntity.setParam(param);
+        serverEntity.setPort(port);
+        Integer id =  serverManager.Add(serverEntity).getId();
         File dir = new File("data/servers/" + id + "/");
-        String cid;
+        dir.mkdirs();
         if(docker) {
-            cid = dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath());
+            serverEntity.setContainer(dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath()));
         } else {
-            cid = RandomStringUtils.random(10);
+            serverEntity.setContainer(RandomStringUtils.random(10));
         }
-        if(dir.exists() || serverManager.getServer(id) != null) {
-            map.put("code", "201");
-            map.put("msg", "Server already exists");
-        } else {
-            Server server = new Server();
-            server.setMemory(memory);
-            server.setDisk(disk);
-            server.setContainer(cid);
-            server.setAutorun(autorun);
-            server.setDocker(docker);
-            server.setCpu(cpu);
-            server.setFile(file);
-            server.setImage(image);
-            server.setParam(param);
-            server.setPort(port);
-            serverManager.Add(server);
-            dir.mkdirs();
-            map.put("code", "200");
-            map.put("msg", "Success");
-        }
+        serverManager.Update(serverEntity);
+        map.put("code", "200");
+        map.put("msg", "Success");
         return map;
     }
 
@@ -128,20 +121,18 @@ public class ServerController {
             map.put("msg", "Server not Found");
         } else if(!ContainerManager.getContainer().containsKey(id)) {
             cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
-            MinePanelApplication.getLogger().info(cmd);
+            MinePanelDaemon.getLogger().info(cmd);
             if(serverManager.getServer(id).getDocker()) {
-                if(Docker.hasContainer(serverManager.getServer(id).getContainer(), dockerManager.getContainers())) {
-                    dockerManager.start(serverManager.getServer(id).getContainer());
-                } else {
+                if (!Docker.hasContainer(serverManager.getServer(id).getContainer(), dockerManager.getContainers())) {
                     dockerManager.create(
                             serverManager.getServer(id).getImage(),
                             serverManager.getServer(id).getMemory(),
                             serverManager.getServer(id).getCpu(),
                             serverManager.getServer(id).getPort(),
                             new File("data/servers/" + id + "/").getAbsolutePath()
-                            );
-                    dockerManager.start(serverManager.getServer(id).getContainer());
+                    );
                 }
+                dockerManager.start(serverManager.getServer(id).getContainer());
                 String[] args = new String[0];
                 ContainerManager.create(id, "docker attach " + serverManager.getServer(id).getContainer(), args);
                 ContainerManager.execute(id, cmd);

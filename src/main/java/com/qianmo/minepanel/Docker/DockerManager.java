@@ -7,7 +7,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.MinePanelDaemon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,15 +24,15 @@ public class DockerManager {
     private DaemonConfiguration daemonConfiguration;
 
     public void Init() throws Exception{
-        MinePanelApplication.getLogger().info("Try to connect docker...");
+        MinePanelDaemon.getLogger().info("Try to connect docker...");
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(daemonConfiguration.getDocker())
                 .build();
         dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
         dockerClient.pingCmd().exec();
         Info info = dockerClient.infoCmd().exec();
-        MinePanelApplication.getLogger().info("Successfully connected to docker!");
-        MinePanelApplication.getLogger().info("Docker Version: " + info.getServerVersion());
+        MinePanelDaemon.getLogger().info("Successfully connected to docker!");
+        MinePanelDaemon.getLogger().info("Docker Version: " + info.getServerVersion());
     }
 
     public List<SearchItem> searchImages(String keyword) {

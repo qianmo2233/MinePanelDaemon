@@ -1,7 +1,7 @@
 package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.Entity.FTPUser;
+import com.qianmo.minepanel.Entity.FTPUserEntity;
 import com.qianmo.minepanel.Service.FTPUserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,11 +36,11 @@ public class FTPUserController {
             map.put("msg", "Access Denied");
             return map;
         }
-        FTPUser ftpUser = new FTPUser();
-        ftpUser.setUserid(username);
-        ftpUser.setUserpassword(password);
-        ftpUser.setHomedirectory(dir);
-        ftpUserManager.Add(ftpUser);
+        FTPUserEntity ftpUserEntity = new FTPUserEntity();
+        ftpUserEntity.setUserid(username);
+        ftpUserEntity.setUserpassword(password);
+        ftpUserEntity.setHomedirectory(dir);
+        ftpUserManager.Add(ftpUserEntity);
         map.put("code", "200");
         map.put("msg", "Success");
         return map;

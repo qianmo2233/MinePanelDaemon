@@ -1,6 +1,6 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.MinePanelDaemon;
 import org.apache.commons.lang.RandomStringUtils;
 
 import java.io.*;
@@ -19,7 +19,7 @@ public class ContainerManager {
             process = runtime.exec(cmd, args, new File("data/servers/" + id + "/"));
         } catch (Exception e) {
             e.printStackTrace();
-            MinePanelApplication.getLogger().error("Container start failed!");
+            MinePanelDaemon.getLogger().error("Container start failed!");
             return;
         }
         final InputStream inputStream = process.getInputStream();
@@ -28,7 +28,7 @@ public class ContainerManager {
         Container.put(id, containerEntity);
         new Thread(new ConsoleReader(containerEntity, "GBK")).start();
         new Thread(new StatusListener(process, id)).start();
-        MinePanelApplication.getLogger().info("Container started");
+        MinePanelDaemon.getLogger().info("Container started");
     }
 
     public static void destroy(Integer id) {
@@ -50,7 +50,7 @@ public class ContainerManager {
             Container.get(id).getOutputStream().flush();
         } catch (IOException e) {
             e.printStackTrace();
-            MinePanelApplication.getLogger().error("Execute Error");
+            MinePanelDaemon.getLogger().error("Execute Error");
         }
     }
 

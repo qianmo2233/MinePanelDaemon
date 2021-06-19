@@ -1,7 +1,7 @@
 package com.qianmo.minepanel.Server.FTP;
 
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.MinePanelDaemon;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
@@ -31,7 +31,7 @@ public class FTPServer {
         this.dataSource = dataSource;
         this.daemonConfiguration = daemonConfiguration;
         Init();
-        MinePanelApplication.getLogger().info("FTP server is already Initialized!");
+        MinePanelDaemon.getLogger().info("FTP server is already Initialized!");
     }
 
     private void Init() {
@@ -79,8 +79,8 @@ public class FTPServer {
     public void Start(){
         try {
             server.start();
-            MinePanelApplication.getLogger().info("FTP server is starting!");
-            MinePanelApplication.getLogger().info("The FTP server runs on port " + daemonConfiguration.getFtp_port());
+            MinePanelDaemon.getLogger().info("FTP server is starting!");
+            MinePanelDaemon.getLogger().info("The FTP server runs on port " + daemonConfiguration.getFtp_port());
         }catch(FtpException e) {
             e.printStackTrace();
         }
@@ -88,6 +88,6 @@ public class FTPServer {
 
     public void Stop() {
         server.stop();
-        MinePanelApplication.getLogger().info("FTP server is stopping!");
+        MinePanelDaemon.getLogger().info("FTP server is stopping!");
     }
 }

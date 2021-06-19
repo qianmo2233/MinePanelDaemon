@@ -1,8 +1,7 @@
 package com.qianmo.minepanel.Service;
 
-import com.qianmo.minepanel.Entity.FTPUser;
-import com.qianmo.minepanel.Mapper.FTPUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.qianmo.minepanel.Entity.FTPUserEntity;
+import com.qianmo.minepanel.Repository.FTPUserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -11,25 +10,25 @@ import java.util.List;
 @Service
 public class FTPUserManager {
     @Resource
-    private FTPUserMapper ftpUserMapper;
+    private FTPUserRepository ftpUserRepository;
 
-    public void Add(FTPUser ftpUser) {
-        ftpUserMapper.insert(ftpUser);
+    public void Add(FTPUserEntity ftpUserEntity) {
+        ftpUserRepository.save(ftpUserEntity);
     }
 
     public void Delete(String username) {
-        ftpUserMapper.deleteById(username);
+        ftpUserRepository.deleteById(username);
     }
 
-    public int Update(FTPUser ftpUser) {
-        return ftpUserMapper.updateById(ftpUser);
+    public FTPUserEntity Update(FTPUserEntity ftpUserEntity) {
+        return ftpUserRepository.save(ftpUserEntity);
     }
 
-    public List<FTPUser> getAllUser() {
-        return ftpUserMapper.selectList(null);
+    public List<FTPUserEntity> getAllUser() {
+        return ftpUserRepository.findAll();
     }
 
-    public FTPUser getUser(String username) {
-        return ftpUserMapper.selectById(username);
+    public FTPUserEntity getUser(String username) {
+        return ftpUserRepository.findById(username).orElse(null);
     }
 }

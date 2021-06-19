@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 @SpringBootApplication
 @ServletComponentScan(value = "com.qianmo.minepanel.Initializer")
 @EnableConfigurationProperties
-public class MinePanelApplication {
+public class MinePanelDaemon {
     private static final Logger logger = LoggerFactory.getLogger("Daemon");
 
     public static void main(String[] args) {
@@ -33,7 +33,7 @@ public class MinePanelApplication {
                 ioException.printStackTrace();
             }
         }
-        SpringApplication.run(MinePanelApplication.class, args);
+        SpringApplication.run(MinePanelDaemon.class, args);
     }
 
     public static Logger getLogger() {

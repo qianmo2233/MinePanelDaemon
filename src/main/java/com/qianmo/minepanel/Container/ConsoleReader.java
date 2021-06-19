@@ -1,6 +1,6 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.MinePanelDaemon;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
@@ -34,7 +34,7 @@ public class ConsoleReader implements Runnable{
             }
         } catch (IOException e) {
             e.printStackTrace();
-            MinePanelApplication.getLogger().error(e.getMessage());
+            MinePanelDaemon.getLogger().error(e.getMessage());
         }
     }
 }

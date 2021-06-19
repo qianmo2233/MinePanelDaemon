@@ -1,6 +1,6 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelApplication;
+import com.qianmo.minepanel.MinePanelDaemon;
 
 public class StatusListener implements Runnable{
     private final Process process;
@@ -16,9 +16,9 @@ public class StatusListener implements Runnable{
         try {
             int code = process.waitFor();
             if (code != 0) {
-                MinePanelApplication.getLogger().warn("Container " + id + " has crashed or killed");
+                MinePanelDaemon.getLogger().warn("Container " + id + " has crashed or killed");
             } else {
-                MinePanelApplication.getLogger().info("Container " + id + " has stopped");
+                MinePanelDaemon.getLogger().info("Container " + id + " has stopped");
             }
             if(ContainerManager.getContainer().containsKey(id)){
                 ContainerManager.destroy(id);
