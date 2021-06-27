@@ -1,7 +1,8 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelDaemon;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StatusListener implements Runnable{
     private final Process process;
     private final Integer id;
@@ -16,9 +17,9 @@ public class StatusListener implements Runnable{
         try {
             int code = process.waitFor();
             if (code != 0) {
-                MinePanelDaemon.getLogger().warn("Container " + id + " has crashed or killed");
+                log.warn("Container " + id + " has crashed or killed");
             } else {
-                MinePanelDaemon.getLogger().info("Container " + id + " has stopped");
+                log.info("Container " + id + " has stopped");
             }
             if(ContainerManager.getContainer().containsKey(id)){
                 ContainerManager.destroy(id);

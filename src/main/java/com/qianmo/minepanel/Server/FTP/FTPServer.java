@@ -1,7 +1,7 @@
 package com.qianmo.minepanel.Server.FTP;
 
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.MinePanelDaemon;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
@@ -20,18 +20,21 @@ import java.util.Map;
 
 
 @Configuration("FTP")
+@Slf4j
 public class FTPServer {
-    @Autowired
-    private DataSource dataSource;
     protected FtpServer server;
+
     @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DataSource dataSource;
+
+    @Autowired
+    private final DaemonConfiguration daemonConfiguration;
 
     public FTPServer(DataSource dataSource, DaemonConfiguration daemonConfiguration) {
         this.dataSource = dataSource;
         this.daemonConfiguration = daemonConfiguration;
         Init();
-        MinePanelDaemon.getLogger().info("FTP server is already Initialized!");
+        log.info("FTP server is already Initialized!");
     }
 
     private void Init() {
@@ -79,8 +82,8 @@ public class FTPServer {
     public void Start(){
         try {
             server.start();
-            MinePanelDaemon.getLogger().info("FTP server is starting!");
-            MinePanelDaemon.getLogger().info("The FTP server runs on port " + daemonConfiguration.getFtp_port());
+            log.info("FTP server is starting!");
+            log.info("The FTP server runs on port " + daemonConfiguration.getFtp_port());
         }catch(FtpException e) {
             e.printStackTrace();
         }
@@ -88,6 +91,6 @@ public class FTPServer {
 
     public void Stop() {
         server.stop();
-        MinePanelDaemon.getLogger().info("FTP server is stopping!");
+        log.info("FTP server is stopping!");
     }
 }

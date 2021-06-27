@@ -7,7 +7,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.MinePanelDaemon;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,22 +17,25 @@ import static com.github.dockerjava.api.model.HostConfig.newHostConfig;
 
 //todo Docker
 @Component
+@Slf4j
 public class DockerManager {
+    static private Boolean Enable;
+
     private DockerClient dockerClient;
 
     @Autowired
     private DaemonConfiguration daemonConfiguration;
 
     public void Init() throws Exception{
-        MinePanelDaemon.getLogger().info("Try to connect docker...");
+        log.info("Try to connect docker...");
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(daemonConfiguration.getDocker())
                 .build();
         dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
         dockerClient.pingCmd().exec();
         Info info = dockerClient.infoCmd().exec();
-        MinePanelDaemon.getLogger().info("Successfully connected to docker!");
-        MinePanelDaemon.getLogger().info("Docker Version: " + info.getServerVersion());
+        log.info("Successfully connected to docker!");
+        log.info("Docker Version: " + info.getServerVersion());
     }
 
     public List<SearchItem> searchImages(String keyword) {
@@ -79,5 +82,13 @@ public class DockerManager {
 
     public void remove(String id) {
         dockerClient.removeContainerCmd(id).exec();
+    }
+
+    public static Boolean getEnable() {
+        return Enable;
+    }
+
+    public static void setEnable(Boolean enable) {
+        Enable = enable;
     }
 }

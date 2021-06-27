@@ -1,6 +1,6 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelDaemon;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 
 import java.io.*;
@@ -8,27 +8,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class ContainerManager {
     private static Map<Integer, ContainerEntity> Container = new HashMap<>();
 
     private static final Runtime runtime = Runtime.getRuntime();
 
-    public static void create(Integer id, String cmd, String[] args) {
+    public static void create(Integer id, String cmd, String[] args, String container) {
         Process process;
         try {
             process = runtime.exec(cmd, args, new File("data/servers/" + id + "/"));
         } catch (Exception e) {
             e.printStackTrace();
-            MinePanelDaemon.getLogger().error("Container start failed!");
+            log.error("Container start failed!");
             return;
         }
         final InputStream inputStream = process.getInputStream();
         final OutputStream outputStream = process.getOutputStream();
-        ContainerEntity containerEntity = new ContainerEntity(RandomStringUtils.random(10), process, inputStream, outputStream);
+        ContainerEntity containerEntity = new ContainerEntity(container, process, inputStream, outputStream);
         Container.put(id, containerEntity);
         new Thread(new ConsoleReader(containerEntity, "GBK")).start();
         new Thread(new StatusListener(process, id)).start();
-        MinePanelDaemon.getLogger().info("Container started");
+        log.info("Container started");
     }
 
     public static void destroy(Integer id) {
@@ -50,7 +51,7 @@ public class ContainerManager {
             Container.get(id).getOutputStream().flush();
         } catch (IOException e) {
             e.printStackTrace();
-            MinePanelDaemon.getLogger().error("Execute Error");
+            log.error("Execute Error");
         }
     }
 

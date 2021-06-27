@@ -1,7 +1,6 @@
 package com.qianmo.minepanel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.qianmo.minepanel.Loader.Initializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -12,10 +11,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @SpringBootApplication
-@ServletComponentScan(value = "com.qianmo.minepanel.Initializer")
+@ServletComponentScan(value = "com.qianmo.minepanel.Loader.ContextListener")
 @EnableConfigurationProperties
 public class MinePanelDaemon {
-    private static final Logger logger = LoggerFactory.getLogger("Daemon");
 
     public static void main(String[] args) {
         try {
@@ -31,12 +29,9 @@ public class MinePanelDaemon {
                 System.exit(1);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+                System.exit(1);
             }
         }
         SpringApplication.run(MinePanelDaemon.class, args);
-    }
-
-    public static Logger getLogger() {
-        return logger;
     }
 }

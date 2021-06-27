@@ -4,7 +4,6 @@ import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Docker.DockerManager;
 import com.qianmo.minepanel.Entity.ServerEntity;
-import com.qianmo.minepanel.MinePanelDaemon;
 import com.qianmo.minepanel.Service.ServerManager;
 import com.qianmo.minepanel.Utils.Common;
 import com.qianmo.minepanel.Utils.Docker;
@@ -121,7 +120,6 @@ public class ServerController {
             map.put("msg", "Server not Found");
         } else if(!ContainerManager.getContainer().containsKey(id)) {
             cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
-            MinePanelDaemon.getLogger().info(cmd);
             if(serverManager.getServer(id).getDocker()) {
                 if (!Docker.hasContainer(serverManager.getServer(id).getContainer(), dockerManager.getContainers())) {
                     dockerManager.create(
@@ -134,11 +132,11 @@ public class ServerController {
                 }
                 dockerManager.start(serverManager.getServer(id).getContainer());
                 String[] args = new String[0];
-                ContainerManager.create(id, "docker attach " + serverManager.getServer(id).getContainer(), args);
+                ContainerManager.create(id, "docker attach " + serverManager.getServer(id).getContainer(), args, serverManager.getServer(id).getContainer());
                 ContainerManager.execute(id, cmd);
             } else {
                 String[] args = new String[0];
-                ContainerManager.create(id, cmd, args);
+                ContainerManager.create(id, cmd, args, serverManager.getServer(id).getContainer());
             }
             map.put("code", "200");
             map.put("msg", "Success");

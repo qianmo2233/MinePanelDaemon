@@ -1,10 +1,11 @@
 package com.qianmo.minepanel.Container;
 
-import com.qianmo.minepanel.MinePanelDaemon;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
 
+@Slf4j
 public class ConsoleReader implements Runnable{
     private final InputStream inputStream;
     private final String ConsoleEncode;
@@ -34,7 +35,7 @@ public class ConsoleReader implements Runnable{
             }
         } catch (IOException e) {
             e.printStackTrace();
-            MinePanelDaemon.getLogger().error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }
