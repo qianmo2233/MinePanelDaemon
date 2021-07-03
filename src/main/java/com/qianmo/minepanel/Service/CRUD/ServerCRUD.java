@@ -1,4 +1,4 @@
-package com.qianmo.minepanel.Service;
+package com.qianmo.minepanel.Service.CRUD;
 
 import com.qianmo.minepanel.Entity.ServerEntity;
 import com.qianmo.minepanel.Repository.ServerRepository;
@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class ServerManager {
+public class ServerCRUD {
     @Resource
     private ServerRepository serverRepository;
 

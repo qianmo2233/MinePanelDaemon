@@ -1,4 +1,4 @@
-package com.qianmo.minepanel.Service;
+package com.qianmo.minepanel.Service.CRUD;
 
 import com.qianmo.minepanel.Entity.FTPUserEntity;
 import com.qianmo.minepanel.Repository.FTPUserRepository;
@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class FTPUserManager {
+public class FTPUserCRUD {
     @Resource
     private FTPUserRepository ftpUserRepository;
 

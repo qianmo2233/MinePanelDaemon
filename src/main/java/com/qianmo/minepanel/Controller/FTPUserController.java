@@ -2,7 +2,8 @@ package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Entity.FTPUserEntity;
-import com.qianmo.minepanel.Service.FTPUserManager;
+import com.qianmo.minepanel.Service.CRUD.FTPUserCRUD;
+import com.qianmo.minepanel.Service.Manager.FTPUserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,7 @@ import java.util.Map;
 @RestController
 @Path("/ftp")
 public class FTPUserController {
-    @Resource
+    @Autowired
     private FTPUserManager ftpUserManager;
 
     @Autowired
@@ -36,11 +37,7 @@ public class FTPUserController {
             map.put("msg", "Access Denied");
             return map;
         }
-        FTPUserEntity ftpUserEntity = new FTPUserEntity();
-        ftpUserEntity.setUserid(username);
-        ftpUserEntity.setUserpassword(password);
-        ftpUserEntity.setHomedirectory(dir);
-        ftpUserManager.Add(ftpUserEntity);
+        ftpUserManager.add(username, password, dir);
         map.put("code", "200");
         map.put("msg", "Success");
         return map;
@@ -57,7 +54,7 @@ public class FTPUserController {
             map.put("msg", "Access Denied");
             return map;
         }
-        ftpUserManager.Delete(username);
+        ftpUserManager.del(username);
         map.put("code", "200");
         map.put("msg", "Success");
         return map;

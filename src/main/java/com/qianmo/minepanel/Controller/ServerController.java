@@ -2,12 +2,7 @@ package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.Docker.DockerManager;
-import com.qianmo.minepanel.Entity.ServerEntity;
-import com.qianmo.minepanel.Service.ServerManager;
-import com.qianmo.minepanel.Utils.Common;
-import com.qianmo.minepanel.Utils.Docker;
-import org.apache.commons.lang.RandomStringUtils;
+import com.qianmo.minepanel.Service.Manager.ServerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,14 +20,11 @@ import java.util.Map;
 @RestController
 @Path("/server")
 public class ServerController {
-    @Resource
+    @Autowired
     private ServerManager serverManager;
 
     @Autowired
     private DaemonConfiguration daemonConfiguration;
-
-    @Autowired
-    private DockerManager dockerManager;
 
     @GET
     @Path("create")
@@ -56,25 +48,7 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        ServerEntity serverEntity = new ServerEntity();
-        serverEntity.setMemory(memory);
-        serverEntity.setDisk(disk);
-        serverEntity.setAutorun(autorun);
-        serverEntity.setDocker(docker);
-        serverEntity.setCpu(cpu);
-        serverEntity.setFile(file);
-        serverEntity.setImage(image);
-        serverEntity.setParam(param);
-        serverEntity.setPort(port);
-        Integer id =  serverManager.Add(serverEntity).getId();
-        File dir = new File("data/servers/" + id + "/");
-        dir.mkdirs();
-        if(docker) {
-            serverEntity.setContainer(dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath()));
-        } else {
-            serverEntity.setContainer(RandomStringUtils.random(10));
-        }
-        serverManager.Update(serverEntity);
+        serverManager.add(memory, disk, port, image, file, param, cpu, autorun, docker);
         map.put("code", "200");
         map.put("msg", "Success");
         return map;
@@ -91,13 +65,10 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        File file = new File("data/servers/" + id + "/");
-        if(!file.exists() || serverManager.getServer(id) == null) {
+        if(!serverManager.del(id)) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
         } else {
-            serverManager.Delete(id);
-            Common.deleteAll("data/servers/" + id + "/");
             map.put("code", "200");
             map.put("msg", "Success");
         }
@@ -115,34 +86,16 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        if(!new File("data/servers/" + id + "/").exists() || serverManager.getServer(id) == null) {
+        Boolean result = serverManager.start(id, cmd);
+        if(result == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(!ContainerManager.getContainer().containsKey(id)) {
-            cmd = cmd.replace("file", new File(serverManager.getServer(id).getFile()).getAbsolutePath());
-            if(serverManager.getServer(id).getDocker()) {
-                if (!Docker.hasContainer(serverManager.getServer(id).getContainer(), dockerManager.getContainers())) {
-                    dockerManager.create(
-                            serverManager.getServer(id).getImage(),
-                            serverManager.getServer(id).getMemory(),
-                            serverManager.getServer(id).getCpu(),
-                            serverManager.getServer(id).getPort(),
-                            new File("data/servers/" + id + "/").getAbsolutePath()
-                    );
-                }
-                dockerManager.start(serverManager.getServer(id).getContainer());
-                String[] args = new String[0];
-                ContainerManager.create(id, "docker attach " + serverManager.getServer(id).getContainer(), args, serverManager.getServer(id).getContainer());
-                ContainerManager.execute(id, cmd);
-            } else {
-                String[] args = new String[0];
-                ContainerManager.create(id, cmd, args, serverManager.getServer(id).getContainer());
-            }
+        } else if(result) {
             map.put("code", "200");
             map.put("msg", "Success");
         } else {
-            map.put("code", "201");
-            map.put("msg", "Server is already started");
+            map.put("code", "401");
+            map.put("msg", "Server is already running");
         }
         return map;
     }
@@ -159,7 +112,7 @@ public class ServerController {
             return map;
         }
         File file = new File("data/servers/" + id + "/");
-        if(!file.exists() || serverManager.getServer(id) == null) {
+        if(!file.exists() || serverManager.get(id) == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
         } else if(ContainerManager.getContainer().containsKey(id)) {
@@ -183,11 +136,11 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        File file = new File("data/servers/" + id + "/");
-        if(!file.exists() || serverManager.getServer(id) == null) {
+        Boolean result = serverManager.stop(id);
+        if(result == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(ContainerManager.getContainer().containsKey(id)) {
+        } else if(result) {
             ContainerManager.destroy(id);
             map.put("code", "200");
             map.put("msg", "Success");
@@ -208,11 +161,11 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        File file = new File("data/servers/" + id + "/");
-        if(!file.exists() || serverManager.getServer(id) == null) {
+        Boolean result = serverManager.exec(id, cmd);
+        if(result == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
-        } else if(ContainerManager.getContainer().containsKey(id)) {
+        } else if(result) {
             ContainerManager.execute(id, cmd);
             map.put("code", "200");
             map.put("msg", "Success");
