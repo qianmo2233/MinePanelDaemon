@@ -1,10 +1,7 @@
 package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.DaemonConfiguration;
-import com.qianmo.minepanel.Entity.FTPUserEntity;
-import com.qianmo.minepanel.Service.CRUD.FTPUserCRUD;
 import com.qianmo.minepanel.Service.Manager.FTPUserManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,11 +17,14 @@ import java.util.Map;
 @RestController
 @Path("/ftp")
 public class FTPUserController {
-    @Autowired
-    private FTPUserManager ftpUserManager;
+    private final FTPUserManager ftpUserManager;
 
-    @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DaemonConfiguration daemonConfiguration;
+
+    public FTPUserController(FTPUserManager ftpUserManager, DaemonConfiguration daemonConfiguration) {
+        this.ftpUserManager = ftpUserManager;
+        this.daemonConfiguration = daemonConfiguration;
+    }
 
     @GET
     @Path("add")

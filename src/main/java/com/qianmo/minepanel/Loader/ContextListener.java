@@ -4,7 +4,6 @@ import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Docker.DockerManager;
 import com.qianmo.minepanel.Server.FTP.FTPServer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -18,14 +17,17 @@ import javax.servlet.annotation.WebListener;
 @Slf4j
 public class ContextListener implements ServletContextListener, ApplicationListener<WebServerInitializedEvent> {
 
-    @Autowired
-    private FTPServer ftpServer;
+    private final FTPServer ftpServer;
 
-    @Autowired
-    private DockerManager dockerManager;
+    private final DockerManager dockerManager;
 
-    @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DaemonConfiguration daemonConfiguration;
+
+    public ContextListener(FTPServer ftpServer, DockerManager dockerManager, DaemonConfiguration daemonConfiguration) {
+        this.ftpServer = ftpServer;
+        this.dockerManager = dockerManager;
+        this.daemonConfiguration = daemonConfiguration;
+    }
 
     public void contextDestroyed(ServletContextEvent sce) {
         ftpServer.Stop();

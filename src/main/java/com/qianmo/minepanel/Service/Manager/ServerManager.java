@@ -7,7 +7,6 @@ import com.qianmo.minepanel.Service.CRUD.ServerCRUD;
 import com.qianmo.minepanel.Utils.Common;
 import com.qianmo.minepanel.Utils.Docker;
 import org.apache.commons.lang.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -15,11 +14,14 @@ import java.util.List;
 
 @Service
 public class ServerManager {
-    @Autowired
-    private ServerCRUD serverCRUD;
+    private final ServerCRUD serverCRUD;
 
-    @Autowired
-    private DockerManager dockerManager;
+    private final DockerManager dockerManager;
+
+    public ServerManager(ServerCRUD serverCRUD, DockerManager dockerManager) {
+        this.serverCRUD = serverCRUD;
+        this.dockerManager = dockerManager;
+    }
 
     public ServerEntity add(
             Integer memory,

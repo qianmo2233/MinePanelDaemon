@@ -11,7 +11,6 @@ import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.usermanager.ClearTextPasswordEncryptor;
 import org.apache.ftpserver.usermanager.DbUserManagerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
@@ -24,11 +23,9 @@ import java.util.Map;
 public class FTPServer {
     protected FtpServer server;
 
-    @Autowired
-    private final DataSource dataSource;
+    final DataSource dataSource;
 
-    @Autowired
-    private final DaemonConfiguration daemonConfiguration;
+    final DaemonConfiguration daemonConfiguration;
 
     public FTPServer(DataSource dataSource, DaemonConfiguration daemonConfiguration) {
         this.dataSource = dataSource;

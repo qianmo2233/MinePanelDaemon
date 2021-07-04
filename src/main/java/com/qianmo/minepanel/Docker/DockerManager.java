@@ -8,7 +8,6 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.qianmo.minepanel.DaemonConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,8 +22,11 @@ public class DockerManager {
 
     private DockerClient dockerClient;
 
-    @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DaemonConfiguration daemonConfiguration;
+
+    public DockerManager(DaemonConfiguration daemonConfiguration) {
+        this.daemonConfiguration = daemonConfiguration;
+    }
 
     public void Init() throws Exception{
         log.info("Try to connect docker...");

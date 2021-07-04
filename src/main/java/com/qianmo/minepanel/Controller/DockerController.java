@@ -2,7 +2,6 @@ package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Docker.DockerManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,11 +16,14 @@ import java.util.Map;
 @RestController
 @Path("/docker")
 public class DockerController {
-    @Autowired
-    private DockerManager dockerManager;
+    private final DockerManager dockerManager;
 
-    @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DaemonConfiguration daemonConfiguration;
+
+    public DockerController(DockerManager dockerManager, DaemonConfiguration daemonConfiguration) {
+        this.dockerManager = dockerManager;
+        this.daemonConfiguration = daemonConfiguration;
+    }
 
     @GET
     @Path("images")

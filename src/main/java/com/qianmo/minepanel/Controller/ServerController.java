@@ -3,11 +3,9 @@ package com.qianmo.minepanel.Controller;
 import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Service.Manager.ServerManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,11 +18,14 @@ import java.util.Map;
 @RestController
 @Path("/server")
 public class ServerController {
-    @Autowired
-    private ServerManager serverManager;
+    private final ServerManager serverManager;
 
-    @Autowired
-    private DaemonConfiguration daemonConfiguration;
+    private final DaemonConfiguration daemonConfiguration;
+
+    public ServerController(ServerManager serverManager, DaemonConfiguration daemonConfiguration) {
+        this.serverManager = serverManager;
+        this.daemonConfiguration = daemonConfiguration;
+    }
 
     @GET
     @Path("create")
