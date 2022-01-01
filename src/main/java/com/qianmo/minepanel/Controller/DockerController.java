@@ -2,14 +2,18 @@ package com.qianmo.minepanel.Controller;
 
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Docker.DockerManager;
+import com.qianmo.minepanel.Response.DockerContainersResponse;
+import com.qianmo.minepanel.Response.DockerImagesResponse;
+import com.qianmo.minepanel.Response.NoDockerResponse;
+import com.qianmo.minepanel.Response.UnauthorizedResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Singleton;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.Map;
+import javax.ws.rs.core.Response;
 
 @Singleton
 @Component
@@ -29,31 +33,19 @@ public class DockerController {
     @Path("images")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<Object, Object> getImages(@QueryParam("token") String token) throws Exception {
-        Map<Object, Object> map = new HashMap<>();
-        if(!daemonConfiguration.getToken().equals(token)) {
-            map.put("code", "401");
-            map.put("msg", "Access Denied");
-            return map;
-        }
-        map.put("code", 200);
-        map.put("images", dockerManager.getImages());
-        return map;
+    public Response getImages(@QueryParam("token") String token) {
+        if(!daemonConfiguration.getToken().equals(token)) return new UnauthorizedResponse().get();
+        if(!DockerManager.getEnable()) return new NoDockerResponse().get();
+        return new DockerImagesResponse(dockerManager.getImages()).get();
     }
 
     @GET
     @Path("containers")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<Object, Object> getContainers(@QueryParam("token") String token) throws Exception {
-        Map<Object, Object> map = new HashMap<>();
-        if(!daemonConfiguration.getToken().equals(token)) {
-            map.put("code", "401");
-            map.put("msg", "Access Denied");
-            return map;
-        }
-        map.put("code", 200);
-        map.put("containers", dockerManager.getContainers());
-        return map;
+    public Response getContainers(@QueryParam("token") String token) {
+        if(!daemonConfiguration.getToken().equals(token)) return new UnauthorizedResponse().get();
+        if(!DockerManager.getEnable()) return new NoDockerResponse().get();
+        return new DockerContainersResponse(dockerManager.getContainers()).get();
     }
 }

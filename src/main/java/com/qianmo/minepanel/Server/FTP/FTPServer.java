@@ -88,6 +88,6 @@ public class FTPServer {
 
     public void Stop() {
         server.stop();
-        log.info("FTP server is stopping!");
+        log.info("Stopping FTP server...");
     }
 }

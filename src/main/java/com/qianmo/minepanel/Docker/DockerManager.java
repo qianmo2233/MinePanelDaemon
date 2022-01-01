@@ -38,6 +38,7 @@ public class DockerManager {
         Info info = dockerClient.infoCmd().exec();
         log.info("Successfully connected to docker!");
         log.info("Docker Version: " + info.getServerVersion());
+        setEnable(true);
     }
 
     public List<SearchItem> searchImages(String keyword) {

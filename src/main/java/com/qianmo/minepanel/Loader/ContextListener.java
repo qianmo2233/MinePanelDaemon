@@ -32,7 +32,7 @@ public class ContextListener implements ServletContextListener, ApplicationListe
     public void contextDestroyed(ServletContextEvent sce) {
         ftpServer.Stop();
         sce.getServletContext().removeAttribute("FTP-SERVER");
-        log.info("FTP server is stopped!");
+        log.info("Daemon is stopped!");
     }
 
     public void contextInitialized(ServletContextEvent sce) {
@@ -44,7 +44,7 @@ public class ContextListener implements ServletContextListener, ApplicationListe
             e.printStackTrace();
             throw new RuntimeException("FTP server start failed!", e);
         }
-        if(!daemonConfiguration.getDocker().equals("")) {
+        if(!(daemonConfiguration.getDocker().equals("") || daemonConfiguration.getDocker().equals("none"))) {
             try {
                 dockerManager.Init();
             } catch (Exception e) {
@@ -54,7 +54,7 @@ public class ContextListener implements ServletContextListener, ApplicationListe
             }
         } else {
             DockerManager.setEnable(false);
-            log.warn("Docker url is empty,the virtualization container will not be enabled");
+            log.warn("Docker is disabled,the virtualization container will not be enabled");
         }
     }
 

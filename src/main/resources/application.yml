@@ -11,5 +11,5 @@ daemon:
     token: test
     #Docker连接地址
     #tpc://localhost:2375
-    #留空停用Docker
-    docker: tcp://localhost:2375
+    #填写none停用Docker
+    docker: none

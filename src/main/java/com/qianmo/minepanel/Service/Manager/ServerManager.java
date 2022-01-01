@@ -6,7 +6,6 @@ import com.qianmo.minepanel.Entity.ServerEntity;
 import com.qianmo.minepanel.Service.CRUD.ServerCRUD;
 import com.qianmo.minepanel.Utils.Common;
 import com.qianmo.minepanel.Utils.Docker;
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -35,22 +34,14 @@ public class ServerManager {
             Boolean docker
             ) {
         ServerEntity serverEntity = new ServerEntity();
-        serverEntity.setMemory(memory);
-        serverEntity.setDisk(disk);
-        serverEntity.setAutorun(autorun);
-        serverEntity.setDocker(docker);
-        serverEntity.setCpu(cpu);
-        serverEntity.setFile(file);
-        serverEntity.setImage(image);
-        serverEntity.setParam(param);
-        serverEntity.setPort(port);
+        setServerEntity(memory, disk, port, image, file, param, cpu, autorun, docker, serverEntity);
         Integer id =  serverCRUD.Add(serverEntity).getId();
         File dir = new File("data/servers/" + id + "/");
         dir.mkdirs();
         if(docker) {
             serverEntity.setContainer(dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath()));
         } else {
-            serverEntity.setContainer(RandomStringUtils.random(10));
+            serverEntity.setContainer(Common.getRandomString(10));
         }
         return serverCRUD.Update(serverEntity);
     }
@@ -79,6 +70,11 @@ public class ServerManager {
     ) {
         ServerEntity serverEntity = new ServerEntity();
         serverEntity.setId(id);
+        setServerEntity(memory, disk, port, image, file, param, cpu, autorun, docker, serverEntity);
+        return serverCRUD.Update(serverEntity);
+    }
+
+    private static void setServerEntity(Integer memory, Integer disk, Integer port, String image, String file, String param, Integer cpu, Boolean autorun, Boolean docker, ServerEntity serverEntity) {
         serverEntity.setMemory(memory);
         serverEntity.setDisk(disk);
         serverEntity.setAutorun(autorun);
@@ -88,7 +84,6 @@ public class ServerManager {
         serverEntity.setImage(image);
         serverEntity.setParam(param);
         serverEntity.setPort(port);
-        return serverCRUD.Update(serverEntity);
     }
 
     public List<ServerEntity> get() {
@@ -105,6 +100,7 @@ public class ServerManager {
         } else if(!ContainerManager.getContainer().containsKey(id)) {
             cmd = cmd.replace("{file}", new File(serverCRUD.getServer(id).getFile()).getAbsolutePath());
             if(serverCRUD.getServer(id).getDocker()) {
+                if (!DockerManager.getEnable()) return false;
                 if (!Docker.hasContainer(serverCRUD.getServer(id).getContainer(), dockerManager.getContainers())) {
                     dockerManager.create(
                             serverCRUD.getServer(id).getImage(),
@@ -140,7 +136,7 @@ public class ServerManager {
     }
 
     public Boolean exec(Integer id, String cmd) {
-        if(new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
+        if(!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
             return null;
         } else if(ContainerManager.getContainer().containsKey(id)) {
             ContainerManager.execute(id, cmd);
@@ -148,5 +144,9 @@ public class ServerManager {
         } else {
             return false;
         }
+    }
+
+    public Boolean existsServer(Integer id) {
+        return new File("data/servers/" + id + "/").exists() && serverCRUD.getServer(id) != null;
     }
 }

@@ -27,7 +27,7 @@ public class ContainerManager {
         final OutputStream outputStream = process.getOutputStream();
         ContainerEntity containerEntity = new ContainerEntity(container, process, inputStream, outputStream);
         Container.put(id, containerEntity);
-        new Thread(new ConsoleReader(containerEntity, "GBK")).start();
+        new Thread(new ConsoleReader(containerEntity, "UTF-8", id)).start();
         new Thread(new StatusListener(process, id)).start();
         log.info("Container started");
     }
