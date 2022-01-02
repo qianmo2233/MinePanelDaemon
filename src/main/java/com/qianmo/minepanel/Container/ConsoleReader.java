@@ -1,11 +1,15 @@
 package com.qianmo.minepanel.Container;
 
+import com.alibaba.fastjson.JSON;
 import com.qianmo.minepanel.Server.WebSocket.SessionPool;
 import com.qianmo.minepanel.Server.WebSocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class ConsoleReader implements Runnable{
@@ -30,14 +34,17 @@ public class ConsoleReader implements Runnable{
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        BufferedReader bufferedReader = new BufferedReader(Objects.requireNonNull(inputStreamReader));
         try {
             String log;
             while ((log = bufferedReader.readLine()) != null) {
                 containerEntity.getConsoles().add(StringEscapeUtils.unescapeJava(log));
                 //System.out.println(log);
                 if (SessionPool.getSessions().containsValue(id)) {
-                    WebSocketServer.sendInfo(SessionPool.getSessions().inverse().get(id), "{\"type\":\"log\",\"msg\":\"" + log + "\"}");
+                    Map<String, String> map = new HashMap<>();
+                    map.put("type", "log");
+                    map.put("msg", log);
+                    WebSocketServer.sendInfo(SessionPool.getSessions().inverse().get(id), JSON.toJSONString(map));
                 }
             }
         } catch (IOException e) {

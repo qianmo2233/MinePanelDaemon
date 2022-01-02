@@ -15,7 +15,7 @@ public class WebSocketServer {
     public static void sendMessage(Session session, String message) throws IOException {
         if(session != null){
             synchronized (session) {
-                session.getBasicRemote().sendText(message);
+                session.getAsyncRemote().sendText(message);
             }
         }
     }
@@ -46,21 +46,12 @@ public class WebSocketServer {
     //收到客户端信息
     @OnMessage
     public void onMessage(String message) throws IOException{
-        message = "客户端：" + message + ",已收到";
-        System.out.println(message);
-        for (Session session: SessionPool.getConnPool().values()) {
-            try {
-                sendMessage(session, message);
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
+        //
     }
 
     //错误时调用
     @OnError
     public void onError(Session session, Throwable throwable){
-        System.out.println("发生错误");
         throwable.printStackTrace();
     }
 }

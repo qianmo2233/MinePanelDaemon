@@ -14,7 +14,7 @@ public class ContainerEntity {
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    private List consoles = new ArrayList();
+    private List<String> consoles = new ArrayList<>();
 
     public ContainerEntity(String id, Process process, InputStream inputStream, OutputStream outputStream) {
         this.id = id;

@@ -27,13 +27,15 @@ public class ContainerManager {
         final OutputStream outputStream = process.getOutputStream();
         ContainerEntity containerEntity = new ContainerEntity(container, process, inputStream, outputStream);
         Container.put(id, containerEntity);
-        new Thread(new ConsoleReader(containerEntity, "UTF-8", id)).start();
+        new Thread(new ConsoleReader(containerEntity, System.getProperty("os.name").toLowerCase().contains("linux") ? "UTF-8" : "GBK", id)).start();
         new Thread(new StatusListener(process, id)).start();
+        new Thread(new UsageListener(process.pid(), id)).start();
         log.info("Container started");
     }
 
     public static void destroy(Integer id) {
         ContainerEntity containerEntity = Container.get(id);
+        if (containerEntity == null) return;
         try {
             containerEntity.getProcess().destroyForcibly();
             containerEntity.getInputStream().close();
@@ -45,6 +47,7 @@ public class ContainerManager {
     }
 
     public static void execute(Integer id, String cmd) {
+        Container.get(id).getConsoles().add("> " + cmd);
         cmd = cmd + "\n";
         try {
             Container.get(id).getOutputStream().write(cmd.getBytes(StandardCharsets.UTF_8));
