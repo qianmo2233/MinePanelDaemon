@@ -22,7 +22,7 @@ public class ServerEntity {
     private Boolean autorun = true;
 
     @Column
-    private String param = "";
+    private String cmd = "";
 
     @Column
     private String file = "";

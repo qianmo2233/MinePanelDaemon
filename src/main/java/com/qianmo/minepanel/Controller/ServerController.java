@@ -3,18 +3,14 @@ package com.qianmo.minepanel.Controller;
 import com.qianmo.minepanel.Container.ContainerManager;
 import com.qianmo.minepanel.DaemonConfiguration;
 import com.qianmo.minepanel.Service.Manager.ServerManager;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@Singleton
-@Component
 @RestController
 @Path("/server")
 public class ServerController {
@@ -29,7 +25,6 @@ public class ServerController {
 
     @GET
     @Path("create")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> createServer(
             @QueryParam("memory") Integer memory,
@@ -38,7 +33,7 @@ public class ServerController {
             @QueryParam("port") Integer port,
             @QueryParam("image") String image,
             @QueryParam("file") String file,
-            @QueryParam("param") String param,
+            @QueryParam("cmd") String cmd,
             @QueryParam("cpu") Integer cpu,
             @QueryParam("autorun") Boolean autorun,
             @QueryParam("docker") Boolean docker
@@ -49,7 +44,7 @@ public class ServerController {
             map.put("msg", "Access Denied");
             return map;
         }
-        serverManager.add(memory, disk, port, image, file, param, cpu, autorun, docker);
+        serverManager.add(memory, disk, port, image, file, cmd, cpu, autorun, docker);
         map.put("code", "200");
         map.put("msg", "Success");
         return map;
@@ -57,7 +52,6 @@ public class ServerController {
 
     @GET
     @Path("delete")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> deleteServer(@QueryParam("id") Integer id, @QueryParam("token") String token) throws Exception {
         Map<String, String> map = new HashMap<>();
@@ -78,16 +72,15 @@ public class ServerController {
 
     @GET
     @Path("start")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> startServer(@QueryParam("id") Integer id, @QueryParam("token") String token, @QueryParam("cmd") String cmd) throws Exception {
+    public Map<String, String> startServer(@QueryParam("id") Integer id, @QueryParam("token") String token) throws Exception {
         Map<String, String> map = new HashMap<>();
         if(!daemonConfiguration.getToken().equals(token)) {
             map.put("code", "401");
             map.put("msg", "Access Denied");
             return map;
         }
-        Boolean result = serverManager.start(id, cmd);
+        Boolean result = serverManager.start(id);
         if(result == null) {
             map.put("code", "404");
             map.put("msg", "Server not Found");
@@ -103,7 +96,6 @@ public class ServerController {
 
     @GET
     @Path("log")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<Object, Object> getServerLog(@QueryParam("id") Integer id, @QueryParam("token") String token) {
         Map<Object, Object> map = new HashMap<>();
@@ -128,7 +120,6 @@ public class ServerController {
 
     @GET
     @Path("stop")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> stopServer(@QueryParam("id") Integer id, @QueryParam("token") String token) {
         Map<String, String> map = new HashMap<>();
@@ -153,7 +144,6 @@ public class ServerController {
     }
     @GET
     @Path("exec")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> ExecCmd(@QueryParam("id") Integer id, @QueryParam("token") String token, @QueryParam("cmd") String cmd) {
         Map<String, String> map = new HashMap<>();

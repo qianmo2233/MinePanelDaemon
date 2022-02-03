@@ -6,19 +6,16 @@ import com.qianmo.minepanel.Response.DockerContainersResponse;
 import com.qianmo.minepanel.Response.DockerImagesResponse;
 import com.qianmo.minepanel.Response.NoDockerResponse;
 import com.qianmo.minepanel.Response.UnauthorizedResponse;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Singleton
-@Component
 @RestController
-@Path("/docker")
+@RequestMapping("/docker")
 public class DockerController {
     private final DockerManager dockerManager;
 
@@ -29,9 +26,7 @@ public class DockerController {
         this.daemonConfiguration = daemonConfiguration;
     }
 
-    @GET
-    @Path("images")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @GetMapping("images")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getImages(@QueryParam("token") String token) {
         if(!daemonConfiguration.getToken().equals(token)) return new UnauthorizedResponse().get();
@@ -39,9 +34,7 @@ public class DockerController {
         return new DockerImagesResponse(dockerManager.getImages()).get();
     }
 
-    @GET
-    @Path("containers")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @GetMapping("containers")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getContainers(@QueryParam("token") String token) {
         if(!daemonConfiguration.getToken().equals(token)) return new UnauthorizedResponse().get();

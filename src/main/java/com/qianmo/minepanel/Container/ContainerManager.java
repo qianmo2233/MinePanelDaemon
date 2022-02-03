@@ -1,7 +1,6 @@
 package com.qianmo.minepanel.Container;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.RandomStringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -10,14 +9,14 @@ import java.util.Map;
 
 @Slf4j
 public class ContainerManager {
-    private static Map<Integer, ContainerEntity> Container = new HashMap<>();
+    private static final Map<Integer, ContainerEntity> Container = new HashMap<>();
 
     private static final Runtime runtime = Runtime.getRuntime();
 
-    public static void create(Integer id, String cmd, String[] args, String container) {
+    public static void create(Integer id, String cmd, String container) {
         Process process;
         try {
-            process = runtime.exec(cmd, args, new File("data/servers/" + id + "/"));
+            process = runtime.exec(cmd, new String[0] , new File("data/servers/" + id + "/"));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Container start failed!");
@@ -30,7 +29,7 @@ public class ContainerManager {
         new Thread(new ConsoleReader(containerEntity, System.getProperty("os.name").toLowerCase().contains("linux") ? "UTF-8" : "GBK", id)).start();
         new Thread(new StatusListener(process, id)).start();
         new Thread(new UsageListener(process.pid(), id)).start();
-        log.info("Container started");
+        log.info("Container " + container + "started");
     }
 
     public static void destroy(Integer id) {

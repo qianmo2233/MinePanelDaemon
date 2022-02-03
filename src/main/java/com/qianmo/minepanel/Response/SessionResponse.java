@@ -12,6 +12,6 @@ public class SessionResponse extends AbstractResponse{
 
     @Override
     public Response get() {
-        return Response.status(ResponseCode.SUCCESS.get()).entity(response).build();
+        return Response.status(responseCode.get()).entity(response).build();
     }
 }

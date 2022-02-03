@@ -1,5 +1,6 @@
 package com.qianmo.minepanel.Server.WebSocket;
 
+import com.qianmo.minepanel.Config.WebSocketConfig;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -7,17 +8,13 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
-@ServerEndpoint("/websocket/{sid}")
+@ServerEndpoint(value = "/websocket/{sid}", configurator = WebSocketConfig.class)
 @Component
 public class WebSocketServer {
 
     //发送消息
     public static void sendMessage(Session session, String message) throws IOException {
-        if(session != null){
-            synchronized (session) {
-                session.getAsyncRemote().sendText(message);
-            }
-        }
+        if(session != null) session.getAsyncRemote().sendText(message);
     }
     //给指定用户发送信息
     public static void sendInfo(String sid, String message){

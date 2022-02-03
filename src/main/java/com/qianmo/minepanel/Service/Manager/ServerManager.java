@@ -12,15 +12,7 @@ import java.io.File;
 import java.util.List;
 
 @Service
-public class ServerManager {
-    private final ServerCRUD serverCRUD;
-
-    private final DockerManager dockerManager;
-
-    public ServerManager(ServerCRUD serverCRUD, DockerManager dockerManager) {
-        this.serverCRUD = serverCRUD;
-        this.dockerManager = dockerManager;
-    }
+public record ServerManager(ServerCRUD serverCRUD, DockerManager dockerManager) {
 
     public ServerEntity add(
             Integer memory,
@@ -28,17 +20,17 @@ public class ServerManager {
             Integer port,
             String image,
             String file,
-            String param,
+            String cmd,
             Integer cpu,
             Boolean autorun,
             Boolean docker
-            ) {
+    ) {
         ServerEntity serverEntity = new ServerEntity();
-        setServerEntity(memory, disk, port, image, file, param, cpu, autorun, docker, serverEntity);
-        Integer id =  serverCRUD.Add(serverEntity).getId();
+        setServerEntity(memory, disk, port, image, file, cmd, cpu, autorun, docker, serverEntity);
+        Integer id = serverCRUD.Add(serverEntity).getId();
         File dir = new File("data/servers/" + id + "/");
         dir.mkdirs();
-        if(docker) {
+        if (docker) {
             serverEntity.setContainer(dockerManager.create(image, memory, cpu, port, dir.getAbsolutePath()));
         } else {
             serverEntity.setContainer(Common.getRandomString(10));
@@ -47,7 +39,7 @@ public class ServerManager {
     }
 
     public Boolean del(Integer id) {
-        if(new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
+        if (new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
             return false;
         } else {
             serverCRUD.Delete(id);
@@ -63,18 +55,18 @@ public class ServerManager {
             Integer port,
             String image,
             String file,
-            String param,
+            String cmd,
             Integer cpu,
             Boolean autorun,
             Boolean docker
     ) {
         ServerEntity serverEntity = new ServerEntity();
         serverEntity.setId(id);
-        setServerEntity(memory, disk, port, image, file, param, cpu, autorun, docker, serverEntity);
+        setServerEntity(memory, disk, port, image, file, cmd, cpu, autorun, docker, serverEntity);
         return serverCRUD.Update(serverEntity);
     }
 
-    private static void setServerEntity(Integer memory, Integer disk, Integer port, String image, String file, String param, Integer cpu, Boolean autorun, Boolean docker, ServerEntity serverEntity) {
+    private static void setServerEntity(Integer memory, Integer disk, Integer port, String image, String file, String cmd, Integer cpu, Boolean autorun, Boolean docker, ServerEntity serverEntity) {
         serverEntity.setMemory(memory);
         serverEntity.setDisk(disk);
         serverEntity.setAutorun(autorun);
@@ -82,7 +74,7 @@ public class ServerManager {
         serverEntity.setCpu(cpu);
         serverEntity.setFile(file);
         serverEntity.setImage(image);
-        serverEntity.setParam(param);
+        serverEntity.setCmd(cmd);
         serverEntity.setPort(port);
     }
 
@@ -94,12 +86,12 @@ public class ServerManager {
         return serverCRUD.getServer(id);
     }
 
-    public Boolean start(Integer id, String cmd) {
-        if(!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
+    public Boolean start(Integer id) {
+        if (!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
             return null;
-        } else if(!ContainerManager.getContainer().containsKey(id)) {
-            cmd = cmd.replace("{file}", new File(serverCRUD.getServer(id).getFile()).getAbsolutePath());
-            if(serverCRUD.getServer(id).getDocker()) {
+        } else if (!ContainerManager.getContainer().containsKey(id)) {
+            String cmd = serverCRUD.getServer(id).getCmd().replace("{file}", new File(serverCRUD.getServer(id).getFile()).getAbsolutePath());
+            if (serverCRUD.getServer(id).getDocker()) {
                 if (!DockerManager.getEnable()) return false;
                 if (!Docker.hasContainer(serverCRUD.getServer(id).getContainer(), dockerManager.getContainers())) {
                     dockerManager.create(
@@ -111,12 +103,11 @@ public class ServerManager {
                     );
                 }
                 dockerManager.start(serverCRUD.getServer(id).getContainer());
-                String[] args = new String[0];
-                ContainerManager.create(id, "docker attach " + serverCRUD.getServer(id).getContainer(), args, serverCRUD.getServer(id).getContainer());
+                ContainerManager.create(id, "docker attach " + serverCRUD.getServer(id).getContainer(), serverCRUD.getServer(id).getContainer());
                 ContainerManager.execute(id, cmd);
             } else {
-                String[] args = new String[0];
-                ContainerManager.create(id, cmd, args, serverCRUD.getServer(id).getContainer());
+                ContainerManager.create(id,  System.getProperty("os.name").toLowerCase().contains("linux") ? "bash" : "cmd /c @echo off & cmd", serverCRUD.getServer(id).getContainer());
+                ContainerManager.execute(id, serverCRUD.getServer(id).getCmd());
             }
             return true;
         } else {
@@ -125,9 +116,9 @@ public class ServerManager {
     }
 
     public Boolean stop(Integer id) {
-        if(!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
+        if (!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
             return null;
-        } else if(ContainerManager.getContainer().containsKey(id)) {
+        } else if (ContainerManager.getContainer().containsKey(id)) {
             ContainerManager.destroy(id);
             return true;
         } else {
@@ -136,9 +127,9 @@ public class ServerManager {
     }
 
     public Boolean exec(Integer id, String cmd) {
-        if(!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
+        if (!new File("data/servers/" + id + "/").exists() || serverCRUD.getServer(id) == null) {
             return null;
-        } else if(ContainerManager.getContainer().containsKey(id)) {
+        } else if (ContainerManager.getContainer().containsKey(id)) {
             ContainerManager.execute(id, cmd);
             return true;
         } else {

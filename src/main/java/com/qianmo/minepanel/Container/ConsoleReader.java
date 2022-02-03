@@ -5,6 +5,7 @@ import com.qianmo.minepanel.Server.WebSocket.SessionPool;
 import com.qianmo.minepanel.Server.WebSocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.util.HashMap;
